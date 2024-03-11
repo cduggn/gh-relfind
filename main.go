@@ -17,23 +17,28 @@ var (
 func main() {
 	options := cliHandler()
 
-	url := BuildReleaseHistoryURL(options.RepoOwner, options.Repo, options.NumRecords)
+	url := createReleaseHistoryURL(options.RepoOwner, options.Repo, options.NumRecords)
 	slog.Info(fmt.Sprintf("URL: %v", url))
 
-	releaseHistory, err := Get(url)
+	releaseHistory, err := Get(url, parseListReleases)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Failed to get release history: %v ", err))
 		os.Exit(1)
 	}
 
-	llmService := AWSBedrockService{}
+	llmService, err := NewLLMService(awsRegion)
+	if err != nil {
+		slog.Error(fmt.Sprintf("Failed to create client: %v ", err))
+		os.Exit(1)
+	}
+
 	resp, err := llmService.DetectPackageChanges(BedrockInput{
 		SystemMessage: Prompt(claudeSystemPrompt, struct {
 			Repo    string
 			History string
 		}{
 			Repo:    options.Repo,
-			History: Stringify(releaseHistory),
+			History: Stringify(*releaseHistory),
 		}),
 		UserMessage: []Message{
 			{

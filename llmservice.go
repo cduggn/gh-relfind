@@ -14,11 +14,19 @@ type BedrockInput struct {
 	UserMessage   []Message
 }
 
-func NewLLMService() (LLMService[BedrockInput, string], error) {
-	return AWSBedrockService{}, nil
+func NewLLMService(region string) (LLMService[BedrockInput, string], error) {
+	runtime, err := NewBedrockRuntime(region)
+	if err != nil {
+		return nil, err
+	}
+
+	return AWSBedrockService{
+		Runtime: runtime,
+	}, nil
 }
 
 type AWSBedrockService struct {
+	Runtime BedrockRuntime
 }
 
 func (a AWSBedrockService) DetectPackageChanges(input BedrockInput) (string, error) {

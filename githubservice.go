@@ -9,11 +9,28 @@ import (
 	"time"
 )
 
-func BuildReleaseHistoryURL(owner, repo string, releases int) string {
+type ResponseParser[U any] func(body []byte) (U, error)
+
+var parseListReleases = func(body []byte) (ListReleases, error) {
+	if body == nil {
+		return nil, fmt.Errorf("failed to get response")
+	}
+
+	var list ListReleases
+	jsonErr := json.Unmarshal(body, &list)
+	if jsonErr != nil {
+		slog.Error(fmt.Sprintf("Failed to unmarshal response: %v ", jsonErr))
+		return nil, jsonErr
+	}
+
+	return list, nil
+}
+
+var createReleaseHistoryURL = func(owner, repo string, releases int) string {
 	return baseURL + "/repos/" + owner + "/" + repo + "/releases?per_page=" + fmt.Sprintf("%d", releases)
 }
 
-func Get(url string) (ListReleases, error) {
+func Get[U any](url string, parseResponse ResponseParser[U]) (*U, error) {
 	gitClient := http.Client{
 		Timeout: time.Second * 2, // Timeout after 2 seconds
 	}
@@ -47,16 +64,11 @@ func Get(url string) (ListReleases, error) {
 		return nil, fmt.Errorf("Failed to get response: %v ", res.Status)
 	}
 
-	if body == nil {
-		return nil, fmt.Errorf("Failed to get response: %v ", res.Status)
+	response, parseErr := parseResponse(body)
+	if parseErr != nil {
+		slog.Error(fmt.Sprintf("Failed to parse response: %v ", parseErr))
+		return nil, parseErr
 	}
 
-	var list ListReleases
-	jsonErr := json.Unmarshal(body, &list)
-	if jsonErr != nil {
-		slog.Error(fmt.Sprintf("Failed to unmarshal response: %v ", jsonErr))
-		return nil, jsonErr
-	}
-
-	return list, nil
+	return &response, nil
 }
