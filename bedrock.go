@@ -7,13 +7,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
+	"log"
 	"log/slog"
 	"strings"
 )
 
-var (
-	contentType = "application/json"
-)
+type Request struct {
+	InputText string `json:"inputText"`
+}
+
+type Response struct {
+	Embedding           []float64 `json:"embedding"`
+	InputTextTokenCount int       `json:"inputTextTokenCount"`
+}
 
 type BedrockRuntime struct {
 	client *bedrockruntime.Client
@@ -30,7 +36,15 @@ func NewBedrockRuntime(region string) (BedrockRuntime, error) {
 	}, nil
 }
 
-func (b BedrockRuntime) Inference(modelId, version, systemMsg string, maxTokens int, m []Message) ([]Content, error) {
+func (b BedrockRuntime) invokeInference(model, contentType string, body []byte) (*bedrockruntime.InvokeModelOutput, error) {
+	return b.client.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{
+		ModelId:     aws.String(model),
+		ContentType: aws.String(contentType),
+		Body:        body,
+	})
+}
+
+func (b BedrockRuntime) Chat(modelId, version, systemMsg string, maxTokens int, m []Message) ([]Content, error) {
 	request := ClaudeRequest{
 		Version:           version,
 		MaxTokensToSample: maxTokens,
@@ -44,11 +58,7 @@ func (b BedrockRuntime) Inference(modelId, version, systemMsg string, maxTokens 
 		return nil, err
 	}
 
-	result, err := b.client.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{
-		ModelId:     aws.String(modelId),
-		ContentType: aws.String(contentType),
-		Body:        body,
-	})
+	result, err := b.invokeInference(modelId, "application/json", body)
 
 	if err != nil {
 		errMsg := err.Error()
@@ -70,4 +80,36 @@ func (b BedrockRuntime) Inference(modelId, version, systemMsg string, maxTokens 
 	}
 
 	return response.Content, nil
+}
+
+func (b BedrockRuntime) Embeddings(modelI string) {
+	payload := Request{
+		InputText: "this is a test message",
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	output, err := b.invokeInference("amazon.titan-embed-text-v1", "application/json", payloadBytes)
+
+	if err != nil {
+		log.Fatal("failed to invoke model: ", err)
+	}
+
+	var resp Response
+
+	err = json.Unmarshal(output.Body, &resp)
+
+	if err != nil {
+		log.Fatal("failed to unmarshal", err)
+	}
+
+	fmt.Println("embedding vector from LLM\n", resp.Embedding)
+	fmt.Println()
+
+	fmt.Println("generated embedding for input -", "this is a test message")
+	fmt.Println("generated vector length -", len(resp.Embedding))
+
 }

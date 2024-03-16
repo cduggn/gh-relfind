@@ -7,6 +7,7 @@ import (
 
 type LLMService[T any, R any] interface {
 	DetectPackageChanges(input T) (R, error)
+	GenerateEmbeddings(input T) (R, error)
 }
 
 type BedrockInput struct {
@@ -30,12 +31,7 @@ type AWSBedrockService struct {
 }
 
 func (a AWSBedrockService) DetectPackageChanges(input BedrockInput) (string, error) {
-
-	bedrock, err := NewBedrockRuntime(awsRegion)
-	if err != nil {
-		log.Fatalf("Failed to create client: %v ", err)
-	}
-	rsp, err := bedrock.Inference(modelId, runtimeVersion, input.SystemMessage, maxTokens, input.UserMessage)
+	rsp, err := a.Runtime.Chat(modelId, runtimeVersion, input.SystemMessage, maxTokens, input.UserMessage)
 	if err != nil {
 		log.Fatalf("Failed to get response: %v ", err)
 	}
@@ -47,4 +43,10 @@ func (a AWSBedrockService) DetectPackageChanges(input BedrockInput) (string, err
 	}
 
 	return sb.String(), nil
+}
+
+func (a AWSBedrockService) GenerateEmbeddings(input BedrockInput) (string, error) {
+	a.Runtime.Embeddings("amazon.titan-embed-text-v1")
+
+	return "Embeddings generated", nil
 }

@@ -15,16 +15,16 @@ var (
 )
 
 func main() {
-	options := cliHandler()
+	//options := cliHandler()
 
-	url := createReleaseHistoryURL(options.RepoOwner, options.Repo, options.NumRecords)
-	slog.Info(fmt.Sprintf("URL: %v", url))
-
-	releaseHistory, err := Get(url, parseListReleases)
-	if err != nil {
-		slog.Error(fmt.Sprintf("Failed to get release history: %v ", err))
-		os.Exit(1)
-	}
+	//url := createReleaseHistoryURL(options.RepoOwner, options.Repo, options.NumRecords)
+	//slog.Info(fmt.Sprintf("URL: %v", url))
+	//
+	//releaseHistory, err := Get(url, parseListReleases)
+	//if err != nil {
+	//	slog.Error(fmt.Sprintf("Failed to get release history: %v ", err))
+	//	os.Exit(1)
+	//}
 
 	llmService, err := NewLLMService(awsRegion)
 	if err != nil {
@@ -32,32 +32,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	resp, err := llmService.DetectPackageChanges(BedrockInput{
-		SystemMessage: Prompt(claudeSystemPrompt, struct {
-			Repo    string
-			History string
-		}{
-			Repo:    options.Repo,
-			History: Stringify(*releaseHistory),
-		}),
-		UserMessage: []Message{
-			{
-				Role: "user",
-				Content: []Content{
-					{
-						ContentType: "text",
-						Text: Prompt(claudeUserPrompt,
-							struct{ Keyword string }{Keyword: "cost explorer"}),
-					},
-				},
-			},
-		},
-	})
+	//fmt.Println("Release History: ", Stringify(*releaseHistory))
 
-	if err != nil {
-		slog.Error(fmt.Sprintf("Failed to get response: %v ", err))
-		os.Exit(1)
-	}
+	//resp, err := llmService.DetectPackageChanges(BedrockInput{
+	//	SystemMessage: Prompt(claudeSystemPrompt, struct {
+	//		Repo    string
+	//		History string
+	//	}{
+	//		Repo:    options.Repo,
+	//		History: Stringify(*releaseHistory),
+	//	}),
+	//	UserMessage: []Message{
+	//		{
+	//			Role: "user",
+	//			Content: []Content{
+	//				{
+	//					ContentType: "text",
+	//					Text: Prompt(claudeUserPrompt,
+	//						struct{ Keyword string }{Keyword: "cost explorer"}),
+	//				},
+	//			},
+	//		},
+	//	},
+	//})
+	//
+	//if err != nil {
+	//	slog.Error(fmt.Sprintf("Failed to get response: %v ", err))
+	//	os.Exit(1)
+	//}
+	//
+	//fmt.Println(resp)
 
-	fmt.Println(resp)
+	llmService.GenerateEmbeddings(BedrockInput{})
 }
