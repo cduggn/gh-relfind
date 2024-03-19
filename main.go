@@ -42,7 +42,7 @@ func main() {
 
 	resp, err := llmService.Chat(
 		Prompt(claudeUserPrompt,
-			struct{ Keyword string }{Keyword: "cost explorer"}),
+			struct{ Keyword string }{Keyword: options.SearchTerm}),
 		Prompt(claudeSystemPrompt, struct {
 			Repo    string
 			History string
@@ -57,6 +57,4 @@ func main() {
 	}
 
 	fmt.Println(resp)
-
-	//llmService.GenerateEmbeddings(Bedrock{})
 }
