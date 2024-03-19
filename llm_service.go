@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/bedrockruntime"
-	"log"
 	"log/slog"
 	"strings"
 )
@@ -35,7 +34,6 @@ func NewBedRockService(region string) (BedrockService, error) {
 	return BedrockService{
 		client:    bedrockruntime.NewFromConfig(cfg),
 		chatModel: Chat(Claude{}),
-		//embeddingModel: Embedding(Titan{}),
 	}, nil
 }
 
@@ -85,39 +83,32 @@ func (b BedrockService) Chat(userMsg, systemMsg string) (string, error) {
 	return "fmt.Sprintf(response.Content)", nil
 }
 
-func (b BedrockService) GenerateEmbeddings(in string) (string, error) {
-	//b.client.Embeddings(EmbeddingRequest{
-	//	Model: "amazon.titan-embed-text-v1",
-	//	Body: Request{
-	//		InputText: "some test to embed",
-	//	},
-	//})
-
-	payload, err := json.Marshal(in)
-	if err != nil {
-		log.Fatal(err)
-	}
-	output, err := b.invokeInference(ModelInput{
-		Name:        "amazon.titan-embed-text-v1",
-		ContentType: "application/json",
-		Body:        payload,
-	})
-	if err != nil {
-		log.Fatal("failed to invoke model: ", err)
-	}
-
-	var resp Response
-	err = json.Unmarshal(output.Body, &resp)
-	if err != nil {
-		log.Fatal("failed to unmarshal", err)
-	}
-
-	fmt.Println("embedding vector from LLM\n", resp.Embedding)
-	fmt.Println("generated embedding for input -", "this is a test message")
-	fmt.Println("generated vector length -", len(resp.Embedding))
-
-	return "Embeddings generated", nil
-}
+//func (b BedrockService) GenerateEmbeddings(in string) (string, error) {
+//	payload, err := json.Marshal(in)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	output, err := b.invokeInference(ModelInput{
+//		Name:        "amazon.titan-embed-text-v1",
+//		ContentType: "application/json",
+//		Body:        payload,
+//	})
+//	if err != nil {
+//		log.Fatal("failed to invoke model: ", err)
+//	}
+//
+//	var resp Response
+//	err = json.Unmarshal(output.Body, &resp)
+//	if err != nil {
+//		log.Fatal("failed to unmarshal", err)
+//	}
+//
+//	fmt.Println("embedding vector from LLM\n", resp.Embedding)
+//	fmt.Println("generated embedding for input -", "this is a test message")
+//	fmt.Println("generated vector length -", len(resp.Embedding))
+//
+//	return "Embeddings generated", nil
+//}
 
 func (b BedrockService) invokeInference(input ModelInput) (*bedrockruntime.InvokeModelOutput, error) {
 	return b.client.InvokeModel(context.Background(), &bedrockruntime.InvokeModelInput{

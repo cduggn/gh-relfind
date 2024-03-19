@@ -38,6 +38,8 @@ func main() {
 		version: runtimeVersion,
 	})
 
+	promptData := Stringify(*releaseHistory)
+
 	resp, err := llmService.Chat(
 		Prompt(claudeUserPrompt,
 			struct{ Keyword string }{Keyword: "cost explorer"}),
@@ -46,7 +48,7 @@ func main() {
 			History string
 		}{
 			Repo:    options.Repo,
-			History: Stringify(*releaseHistory),
+			History: promptData,
 		}))
 
 	if err != nil {
