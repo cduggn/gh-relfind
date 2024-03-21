@@ -33,3 +33,11 @@ func (c Claude) Request(userMsg, systemMsg string) ([]byte, error) {
 
 	return jsonData, nil
 }
+
+func (c Claude) GetModel() string {
+	return c.model
+}
+
+func (c Claude) GetModelVersion() string {
+	return c.version
+}

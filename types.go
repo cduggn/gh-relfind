@@ -12,15 +12,6 @@ type Context struct {
 	HtmlURL     string
 }
 
-//// Start Claude/Anthropic types
-
-//type ClaudeRequest struct {
-//	Version           string    `json:"anthropic_version"`
-//	Messages          []Message `json:"messages"`
-//	MaxTokensToSample int       `json:"max_tokens"`
-//	System            string    `json:"system"`
-//}
-
 type ClaudeResponse struct {
 	Content      []Content `json:"content"`
 	ID           string    `json:"id"`
@@ -127,25 +118,10 @@ type Assets struct {
 	Uploader           Uploader  `json:"uploader"`
 }
 
-// End GitHub API types
-type Bedrock struct {
-	SystemMessage string
-	UserMessage   []Message
-}
-
 type ModelInput struct {
 	Name        string
 	ContentType string
 	Body        []byte
-}
-
-type EmbeddingRequest struct {
-	Body  Request
-	Model string
-}
-
-type Request struct {
-	InputText string `json:"inputText"`
 }
 
 type ClaudeRequest struct {
@@ -153,9 +129,4 @@ type ClaudeRequest struct {
 	Messages          []Message `json:"messages"`
 	MaxTokensToSample int       `json:"max_tokens"`
 	System            string    `json:"system"`
-}
-
-type Response struct {
-	Embedding           []float64 `json:"embedding"`
-	InputTextTokenCount int       `json:"inputTextTokenCount"`
 }

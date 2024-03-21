@@ -17,7 +17,6 @@ func cliHandler() CommandLine {
 	numRecordsPtr := flag.Int("releases", 10, "Number of previous releases to search.")
 	repoOwnerPtr := flag.String("owner", "aws", "Repo owner to search for releases.")
 	searchTerm := flag.String("q", "costexplorer", "Search term to filter releases by.")
-	llm := flag.String("llm", "bedrock", "CLI supports Gemini or Bedrocks Claude 3 integration. ['gemini', 'bedrock'].")
 
 	flag.Parse()
 
@@ -26,7 +25,6 @@ func cliHandler() CommandLine {
 		NumRecords: *numRecordsPtr,
 		RepoOwner:  *repoOwnerPtr,
 		SearchTerm: *searchTerm,
-		LLM:        *llm,
 	}
 
 }
