@@ -27,36 +27,41 @@ func main() {
 		os.Exit(1)
 	}
 
-	llmService, err := NewBedRockService(awsRegion, Claude{
-		model:   claudeModel,
-		version: runtimeVersion,
-	})
-	if err != nil {
-		slog.Error(fmt.Sprintf("aws bedrock service instantiation failed: %v ", err))
-		os.Exit(1)
-	}
+	filter := NewSemanticFilterService(SemanticFilterService{filter: TextFilter{}})
 
-	promptData := Stringify(*releaseHistory)
+	filterResults := filter.Filter(releaseHistory, options.SearchTerm)
+	fmt.Println(len(filterResults))
 
-	resp, err := llmService.Chat(
-		Prompt(claudeUserPrompt,
-			struct{ Keyword string }{Keyword: options.SearchTerm}),
-		Prompt(claudeSystemPrompt, struct {
-			Repo    string
-			History string
-		}{
-			Repo:    options.Repo,
-			History: promptData,
-		}))
-
-	if err != nil {
-		slog.Error(fmt.Sprintf("Failed to get response: %v ", err))
-		os.Exit(1)
-	}
-
-	for _, content := range resp {
-		fmt.Println(content.Text)
-	}
-
-	fmt.Println(resp)
+	//llmService, err := NewBedRockService(awsRegion, Claude{
+	//	model:   claudeModel,
+	//	version: runtimeVersion,
+	//})
+	//if err != nil {
+	//	slog.Error(fmt.Sprintf("aws bedrock service instantiation failed: %v ", err))
+	//	os.Exit(1)
+	//}
+	//
+	//promptData := Stringify(*releaseHistory)
+	//
+	//resp, err := llmService.Chat(
+	//	Prompt(claudeUserPrompt,
+	//		struct{ Keyword string }{Keyword: options.SearchTerm}),
+	//	Prompt(claudeSystemPrompt, struct {
+	//		Repo    string
+	//		History string
+	//	}{
+	//		Repo:    options.Repo,
+	//		History: promptData,
+	//	}))
+	//
+	//if err != nil {
+	//	slog.Error(fmt.Sprintf("Failed to get response: %v ", err))
+	//	os.Exit(1)
+	//}
+	//
+	//for _, content := range resp {
+	//	fmt.Println(content.Text)
+	//}
+	//
+	//fmt.Println(resp)
 }
