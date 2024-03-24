@@ -5,6 +5,9 @@
 > **Note** 
 The initial version works best against repos that publish detailed release notes. There are many examples of projects that only publish tag information and no release notes (the golang/go repository is one such example). In these cases, the results will be empty.
 
+## Pre-requisites
+The AWS default credential chain is used to authenticate the request. Ensure that you have the necessary permissions to access Claude 3 Sonnet through AWS Bedrock.
+
 ## Installation
 
 ```bash
@@ -20,5 +23,6 @@ go run ./... -k <keyword> -o <owner> -n <num releases to search> -r <repo>
 go run ./... -k costexplorer -o aws -n 20 -r aws-sdk-go-v2
 
 ```
+
 
 
