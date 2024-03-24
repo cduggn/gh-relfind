@@ -42,7 +42,11 @@ type Message struct {
 
 // Start GitHub API types
 
-type ListReleases []struct {
+type ListReleases struct {
+	Releases []Release `json:"releases"`
+}
+
+type Release struct {
 	URL             string    `json:"url"`
 	HTMLURL         string    `json:"html_url"`
 	AssetsURL       string    `json:"assets_url"`

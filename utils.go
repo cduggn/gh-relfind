@@ -2,9 +2,9 @@ package main
 
 import "encoding/json"
 
-func Stringify(releases ListReleases) string {
+func Stringify(list []Release) string {
 	var context []Context
-	for _, r := range releases {
+	for _, r := range list {
 
 		context = append(context, Context{
 			Body:        r.Body,

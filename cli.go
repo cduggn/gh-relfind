@@ -13,10 +13,10 @@ type CommandLine struct {
 }
 
 func cliHandler() CommandLine {
-	repoPtr := flag.String("repo", "aws-sdk-go-v2", "Repo name to search for releases.")
-	numRecordsPtr := flag.Int("releases", 10, "Number of previous releases to search.")
-	repoOwnerPtr := flag.String("owner", "aws", "Repo owner to search for releases.")
-	searchTerm := flag.String("q", "costexplorer", "Search term to filter releases by.")
+	repoPtr := flag.String("r", "", "Repo name to search for releases.")
+	numRecordsPtr := flag.Int("n", 10, "Number of previous releases to search.")
+	repoOwnerPtr := flag.String("o", "", "Repo owner to search for releases.")
+	searchTerm := flag.String("k", "", "Search term to filter releases by.")
 
 	flag.Parse()
 

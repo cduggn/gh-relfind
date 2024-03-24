@@ -1,2 +1,18 @@
-# github-release-findr
-A CLI tool which enables keyword search across a Github repositories release history
+# gh-relfind
+
+`gh-relfind` is a simple project started as an experiment to understand how to use Anthropic's Claude 3 Sonnet model through AWS Bedrock. It attempts to replicate the release history search capability of GitHub but from the command line. The initial version uses a keyword search [filter](https://github.com/samber/lo) to filter results from the Github `ListReleases` API before sending to AWS Bedrock for processing. Claude 3 parses the body filed from the API response and detects release version, change and package information. The results are then written to stdout. 
+
+> **Note** 
+The initial version works best against repos that publish detailed release notes. There are many examples of projects that only publish tag information and no release notes (the golang/go repository is one such example). In these cases, the results will be empty.
+
+## Usage
+
+```bash
+gh-relfind -k <keyword> -o <owner> -n <num releases to search> -r <repo> 
+
+# example usage against the offical Go repository
+gh-relfind -k costexplorer -o aws -n 20 -r aws-sdk-go-v2
+
+```
+
+

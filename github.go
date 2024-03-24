@@ -16,16 +16,18 @@ var listReleasesURL = func(owner, repo string, releases int) string {
 
 var ListReleasesParser = func(body []byte) (ListReleases, error) {
 	if body == nil {
-		return nil, fmt.Errorf("failed to get response from GitHub ListReleases API")
+		return ListReleases{}, fmt.Errorf("failed to get response from GitHub ListReleases API")
 	}
 
-	var list ListReleases
+	var list []Release
 	jsonErr := json.Unmarshal(body, &list)
 	if jsonErr != nil {
-		return nil, fmt.Errorf("failed to unmarshal response from Github ListReleases API: %w", jsonErr)
+		return ListReleases{}, fmt.Errorf("failed to unmarshal response from Github ListReleases API: %w", jsonErr)
 	}
 
-	return list, nil
+	return ListReleases{
+		Releases: list,
+	}, nil
 }
 
 func Get[U any](url string, parseResponse ResponseParser[U]) (*U, error) {
