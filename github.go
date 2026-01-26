@@ -32,7 +32,7 @@ var ListReleasesParser = func(body []byte) (ListReleases, error) {
 
 func Get[U any](url string, parseResponse ResponseParser[U]) (*U, error) {
 	gitClient := http.Client{
-		Timeout: time.Second * 2,
+		Timeout: time.Second * 30,
 	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
