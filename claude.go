@@ -11,15 +11,14 @@ func (c Claude) Request(userMsg, systemMsg string) ([]byte, error) {
 	req := ClaudeRequest{
 		Version:           c.version,
 		System:            systemMsg,
-		MaxTokensToSample: 500,
+		MaxTokensToSample: maxTokens,
 		Messages: []Message{
 			{
 				Role: "user",
 				Content: []Content{
 					{
 						ContentType: "text",
-						Text: Prompt(claudeUserPrompt,
-							struct{ Keyword string }{Keyword: userMsg}),
+						Text:        userMsg,
 					},
 				},
 			},

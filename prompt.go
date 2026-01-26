@@ -6,19 +6,42 @@ import (
 	"html/template"
 )
 
-var claudeUserPrompt = `Filter the results to only match on packages that contain the keywords {{.Keyword}} . If no matches are found then just say no matches were found, Don't provide inaccurate version information`
+// Legacy prompts for keyword search mode (backward compatibility)
+var claudeUserPrompt = `Filter the results to only match on packages that contain the keywords {{.Keyword}}. If no matches are found then just say no matches were found. Don't provide inaccurate version information.`
 
-var claudeSystemPrompt = `Extract the package names and change details from the GitHub release history data for the {{.Repo}} repository? The extracted data should include the version number, created and published dates, html url and the key feature or changes associated with each changed package. The information should be concise yet informative, covering major updates without getting bogged down in technical minutiae. Additionally, if possible, highlight any trends or significant shifts in development focus over time. My communication style is straightforward and factual, aiming for clarity and efficiency in conveying information
+var claudeSystemPrompt = `You are analyzing GitHub release history data for the {{.Repo}} repository.
 
-The response should be in JSON format consisting of a summary field and an array of changes. The summary field should include a one or two line summary followed by an array of changes related to the version which contains package name, date created and or date published, release number,  and any changes made to the package. 
+Extract the package names and change details. The extracted data should include:
+- Version number
+- Created and published dates
+- HTML URL
+- Key features or changes for each package
 
-Github release history: {{.History}} `
+Be concise yet informative, covering major updates without getting bogged down in technical minutiae.
+If possible, highlight any trends or significant shifts in development focus over time.
 
+Respond in JSON format with:
+{
+  "summary": "One or two line summary of the changes",
+  "changes": [
+    {
+      "package": "package name",
+      "version": "release version",
+      "date": "created/published date",
+      "url": "html url",
+      "changes": ["list of changes"]
+    }
+  ]
+}
+
+Github release history: {{.History}}`
+
+// Prompt applies data to a template string using Go's template engine
 func Prompt[T any](templateString string, data T) string {
-	template := template.Must(template.New("").Parse(templateString))
+	tmpl := template.Must(template.New("").Parse(templateString))
 
 	var buffer bytes.Buffer
-	err := template.Execute(&buffer, data)
+	err := tmpl.Execute(&buffer, data)
 	if err != nil {
 		fmt.Printf("Failed to execute template: %v\n", err)
 		return ""
